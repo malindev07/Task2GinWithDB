@@ -21,6 +21,12 @@ func main() {
 	r.GET("/api/author/:id", api.ShowAuthorById)
 	// Имя издателя по id
 	r.GET("/api/publisher/:id", api.ShowPublisherById)
+	// Добавить книгу в таблицу
+	r.POST("/api/addBook", api.AddBookHadnler)
+	// Обновление данных
+	r.PUT("/api/updateValue", api.UpdateValueHandler)
+	// Удаление записи
+	r.DELETE("/api/deleteValue/:bookName", api.DeleteValueHandler)
 	//Слушаем сервер
 	r.Run("localhost:8080") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 

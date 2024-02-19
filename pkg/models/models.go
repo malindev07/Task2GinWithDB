@@ -1,11 +1,10 @@
 package models
 
 type Book struct {
-	BookName      string
-	YearOfPublish int
-	AuthorID      int
-
-	PublisherID int
+	BookName      string `json:"bookName"`
+	YearOfPublish int    `json:"yearOfPublish"`
+	AuthorID      int    `json:"authorID"`
+	PublisherID   int    `json:"publisherID"`
 }
 
 type Publisher struct {
