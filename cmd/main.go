@@ -8,7 +8,6 @@ import (
 var DbUrl = "postgres://postgres:Respekt42@localhost:5432/BookShop"
 
 func main() {
-	//соединение с базой
 
 	r := gin.Default()
 	// Вся таблица
