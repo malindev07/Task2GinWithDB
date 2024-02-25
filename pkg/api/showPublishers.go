@@ -7,7 +7,6 @@ import (
 )
 
 func ShowPublisher(c *gin.Context) {
-	// создаем соединение с бд
 
 	c.JSON(http.StatusOK, db.ShowPublishers())
 }
