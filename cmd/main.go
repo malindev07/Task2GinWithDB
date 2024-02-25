@@ -2,10 +2,22 @@ package main
 
 import (
 	"Task2DbWithGin/pkg/api"
+	"flag"
+	"fmt"
 	"github.com/gin-gonic/gin"
+
+	db "Task2DbWithGin/pkg/models"
 )
 
-var DbUrl = "postgres://postgres:Respekt42@localhost:5432/BookShop"
+var DBUrl *string
+
+func init() {
+	DBUrl = flag.String("db", "", "Путь к базе данных")
+
+	flag.Parse()
+	fmt.Println(*DBUrl)
+	db.SetConnect(DBUrl)
+}
 
 func main() {
 
@@ -27,6 +39,7 @@ func main() {
 	// Удаление записи
 	r.DELETE("/api/deleteValue/:bookName", api.DeleteValueHandler)
 	//Слушаем сервер
+	fmt.Println("Запустили сервер")
 	r.Run("localhost:8080") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 
 }

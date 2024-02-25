@@ -8,11 +8,16 @@ type Book struct {
 }
 
 type Publisher struct {
-	ID   int
-	Name string
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 type Author struct {
-	ID   int
-	Name string
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type OldNewValue struct {
+	OldValue string `json:"oldValue"`
+	NewValue string `json:"newValue"`
 }
