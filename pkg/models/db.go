@@ -5,19 +5,25 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
 	"net/http"
 )
 
 var Connect *pgx.Conn
+var ConnectPool *pgxpool.Pool
 
 func SetConnect(dbUrl *string) error {
 
 	conn, err := pgx.Connect(context.Background(), *dbUrl)
-	_ = conn
-	defer conn.Close(context.Background())
+
+	pool, err := pgxpool.New(context.Background(), *dbUrl)
+
+	//defer conn.Close(context.Background())
 
 	Connect = conn
+	ConnectPool = pool
+	//defer ConnectPool.Close()
 
 	if err != nil {
 		log.Fatal(err)
@@ -150,66 +156,52 @@ func ShowPublishers() []Publisher {
 	return publishers
 }
 
-func AddBook(c *gin.Context) {
+func AddBook(c *gin.Context) Book {
 
 	var book Book
 
-	// биндим занчения из post  в json формат и передаем в структуру book
 	if err := c.BindJSON(&book); err != nil {
 		fmt.Fprint(c.Writer, "Возникла ошибка")
 		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
 	}
-
 	// тело запроса к бд
-	sqlReq := "INSERT INTO book (bookname, yearofpublish, author_id, publisher_id) VALUES ($1,$2,$3,$4)"
+	sqlReq := "INSERT INTO book (bookname, yearofpublish, author_id, publisher_id) VALUES ($1,$2,$3,$4);"
 
 	// отправка данных в бд
-	if _, err := Connect.Exec(context.Background(), sqlReq,
+	_, err := ConnectPool.Exec(context.Background(), sqlReq,
 		&book.BookName,
 		&book.YearOfPublish,
 		&book.AuthorID,
-		&book.PublisherID); err != nil {
-		fmt.Fprint(c.Writer, "Error\n")
+		&book.PublisherID)
+
+	if err != nil {
+		log.Fatal(err.Error())
 	} else {
 		fmt.Fprint(c.Writer, "Книга добавлена!\n")
 	}
-	_ = "\n"
-	c.JSON(http.StatusCreated, book)
+
+	return book
 }
 
-//func UpdateBook(c *gin.Context) {
-//
-//	var book Book
-//	var update OldNewValue
-//
-//	if err := c.BindJSON(&update); err != nil {
-//		fmt.Fprint(c.Writer, "Возникла ошибка")
-//		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
-//	}
-//	sqlData := fmt.Sprintf("'%v'", update.OldValue)
-//
-//	sqlReq := "SELECT * FROM book WHERE bookname =" + sqlData
-//
-//	err := Connect.QueryRow(context.Background(), sqlReq).Scan(
-//		&book.BookName,
-//		&book.YearOfPublish,
-//		&book.AuthorID,
-//		&book.PublisherID)
-//
-//	if err != nil {
-//		log.Fatal(err.Error())
-//	}
-//	fmt.Fprint(c.Writer, book, "\n")
-//
-//	sqlReq = "update book set bookname = $1 where bookname =$2;"
-//
-//	if _, err := Connect.Exec(context.Background(), sqlReq,
-//		update.NewValue,
-//		update.OldValue); err != nil {
-//		fmt.Fprint(c.Writer, "Error\n")
-//	} else {
-//		fmt.Fprint(c.Writer, "Книга Обновлена!\n")
-//	}
-//	fmt.Fprint(c.Writer, sqlReq)
-//
-//}
+func UpdateBook(c *gin.Context) OldNewValue {
+
+	var update OldNewValue
+
+	if err := c.BindJSON(&update); err != nil {
+		fmt.Fprint(c.Writer, "Возникла ошибка")
+		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+	}
+
+	sqlReq := "update book set bookname = $1 where bookname =$2;"
+
+	if _, err := Connect.Exec(context.Background(), sqlReq,
+		update.NewValue,
+		update.OldValue); err != nil {
+		fmt.Fprint(c.Writer, "Error\n")
+	} else {
+		fmt.Fprint(c.Writer, "Книга Обновлена!\n")
+	}
+
+	return update
+
+}

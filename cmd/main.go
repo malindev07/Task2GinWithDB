@@ -15,7 +15,7 @@ func init() {
 	DBUrl = flag.String("db", "", "Путь к базе данных")
 
 	flag.Parse()
-	fmt.Println(*DBUrl)
+
 	db.SetConnect(DBUrl)
 }
 
